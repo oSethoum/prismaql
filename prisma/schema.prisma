@@ -1,156 +1,129 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 datasource db {
-  url      = env("DATABASE_URL")
-  provider = "sqlite"
+   url      = env("DATABASE_URL")
+   provider = "sqlite"
 }
 
 generator client {
-  provider = "prisma-client-js"
+   provider = "prisma-client-js"
 }
 
 generator typegraphql {
-  provider = "typegraphql-prisma"
-  output   = "../prisma/generated/type-graphql"
-}
-
-model Admin {
-  id       Int       @id @default(autoincrement())
-  students Student[]
-  teachers Teacher[]
-  user     User      @relation(fields: [userId], references: [id])
-  userId   Int       @unique
-  role     String
-}
-
-model Teacher {
-  id      Int      @id @default(autoincrement())
-  courses Course[]
-  admin   Admin?   @relation(fields: [adminId], references: [id])
-  adminId Int?
-  user    User     @relation(fields: [userId], references: [id])
-  userId  Int      @unique
-  grade   String
-}
-
-model Student {
-  id          Int          @id @default(autoincrement())
-  classroom   Classroom?   @relation(fields: [classroomId], references: [id])
-  classroomId Int?
-  admin       Admin?       @relation(fields: [adminId], references: [id])
-  adminId     Int?
-  user        User         @relation(fields: [userId], references: [id])
-  userId      Int          @unique
-  submissions Submission[]
-  progresses  Progress[]
-  grade       Int
-}
-
-model Course {
-  id          Int          @id @default(autoincrement())
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  title       String
-  description String
-  hasVideos   String
-  photo       String
-  classroom   Classroom?   @relation(fields: [classroomId], references: [id])
-  classroomId Int?
-  teacher     Teacher?     @relation(fields: [teacherId], references: [id])
-  teacherId   Int?
-  meetings    Meeting[]
-  assignments Assignment[]
-  lessons     Lesson[]
-  progresses  Progress[]
-  grade       Int?
-}
-
-model Meeting {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  meetingAt DateTime
-  duration  DateTime
-  link      String
-  course    Course?  @relation(fields: [courseId], references: [id])
-  courseId  Int?
-}
-
-model Department {
-  id         Int         @id @default(autoincrement())
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  label      String
-  classrooms Classroom[]
-}
-
-model Assignment {
-  id          Int          @id @default(autoincrement())
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  label       String
-  content     String
-  deadline    DateTime
-  course      Course?      @relation(fields: [courseId], references: [id])
-  courseId    Int?
-  submissions Submission[]
-}
-
-model Classroom {
-  id           Int         @id @default(autoincrement())
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  label        String
-  students     Student[]
-  courses      Course[]
-  department   Department? @relation(fields: [departmentId], references: [id])
-  departmentId Int?
-  grades       Int
-}
-
-model Lesson {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  label       String
-  description String
-  content     String
-  number      Int
-  course      Course?  @relation(fields: [courseId], references: [id])
-  courseId    Int?
+   provider = "typegraphql-prisma"
+   output   = "../prisma/generated/type-graphql"
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  firstName String
-  lastName  String
-  username  String
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  role      String
-  picture   String
-  teachers  Teacher?
-  admins    Admin?
-  students  Student?
+   id          Int      @id @default(autoincrement())
+   firstName   String
+   lastName    String
+   username    String
+   phone       String
+   email       String
+   password    String
+   role        String
+   disabled    Boolean
+   createdAt   DateTime @default(now())
+   updatedAt   DateTime @updatedAt
+   pictureLink String
+   teachers    Teacher?
+   admins      Admin?
+   students    Student?
+}
+
+model Student {
+   id          Int          @id @default(autoincrement())
+   grade       Int
+   classroom   Classroom?   @relation(fields: [classroomId], references: [id])
+   classroomId Int?
+   user        User         @relation(fields: [userId], references: [id])
+   userId      Int          @unique
+   submissions Submission[]
+}
+
+model Teacher {
+   id         Int      @id @default(autoincrement())
+   grade      String
+   cardNumber String
+   user       User     @relation(fields: [userId], references: [id])
+   userId     Int      @unique
+   courses    Course[]
+}
+
+model Admin {
+   id     Int    @id @default(autoincrement())
+   role   String
+   user   User   @relation(fields: [userId], references: [id])
+   userId Int    @unique
+}
+
+model Departement {
+   id     Int     @id @default(autoincrement())
+   name   String
+   topics Topic[]
+}
+
+model Topic {
+   id            Int          @id @default(autoincrement())
+   name          String
+   grades        Int
+   departmenet   Departement? @relation(fields: [departmenetId], references: [id])
+   departmenetId Int?
+   courses       Course[]
+   classrooms    Classroom[]
+}
+
+model Course {
+   id          Int          @id @default(autoincrement())
+   createdAt   DateTime     @default(now())
+   updatedAt   DateTime     @updatedAt
+   title       String
+   content     String
+   enabled     Boolean
+   topic       Topic?       @relation(fields: [topicId], references: [id])
+   topicId     Int?
+   assignments Assignment[]
+   teacher     Teacher?     @relation(fields: [teacherId], references: [id])
+   teacherId   Int?
+   meetings    Meeting[]
+}
+
+model Assignment {
+   id          Int          @id @default(autoincrement())
+   createdAt   DateTime     @default(now())
+   updatedAt   DateTime     @updatedAt
+   deadline    DateTime
+   course      Course?      @relation(fields: [courseId], references: [id])
+   courseId    Int?
+   submissions Submission[]
+}
+
+model Classroom {
+   id        Int       @id @default(autoincrement())
+   createdAt DateTime  @default(now())
+   updatedAt DateTime  @updatedAt
+   name      String
+   students  Student[]
+   topic     Topic?    @relation(fields: [topicId], references: [id])
+   topicId   Int?
+}
+
+model Meeting {
+   id            Int      @id @default(autoincrement())
+   createdAt     DateTime @default(now())
+   updatedAt     DateTime @updatedAt
+   title         String
+   meetingAt     DateTime
+   meetingLength DateTime
+   course        Course?  @relation(fields: [courseId], references: [id])
+   courseId      Int?
 }
 
 model Submission {
-  id           Int         @id @default(autoincrement())
-  submittedAt  DateTime
-  content      String
-  assignment   Assignment? @relation(fields: [assignmentId], references: [id])
-  assignmentId Int?
-  student      Student?    @relation(fields: [studentId], references: [id])
-  studentId    Int?
-}
-
-model Progress {
-  id        Int      @id @default(autoincrement())
-  lesson    Int
-  course    Course?  @relation(fields: [courseId], references: [id])
-  courseId  Int?
-  student   Student? @relation(fields: [studentId], references: [id])
-  studentId Int?
+   id            Int         @id @default(autoincrement())
+   createdAt     DateTime    @default(now())
+   updatedAt     DateTime    @updatedAt
+   student       Student?    @relation(fields: [studentId], references: [id])
+   studentId     Int?
+   assignement   Assignment? @relation(fields: [assignementId], references: [id])
+   assignementId Int?
 }
